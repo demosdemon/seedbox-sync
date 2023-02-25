@@ -148,6 +148,7 @@ func (unit *fileUnit) Handle() {
 
 	if bytes.Equal(lstat.md5sum, rstat.md5sum) {
 		unit.log.INFO.Println("local file md5sum matches remote")
+		unit.callback(nil)
 		return
 	}
 
