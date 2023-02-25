@@ -4,15 +4,15 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/mrobinsn/go-rtorrent/rtorrent"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var _ Handler = (*torrentUnit)(nil)
 
 type torrentUnit struct {
 	shared   *sharedUnit
-	log      *jww.Notepad
+	log      logging.Notepad
 	name     string
 	torrent  rtorrent.Torrent
 	index    int

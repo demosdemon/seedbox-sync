@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/alessio/shellescape"
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/vbauerster/mpb/v8"
 	"github.com/vbauerster/mpb/v8/decor"
 )
@@ -17,7 +17,7 @@ var _ Handler = (*remoteMd5sumUnit)(nil)
 
 type remoteMd5sumUnit struct {
 	shared       *sharedUnit
-	log          *jww.Notepad
+	log          logging.Notepad
 	fileUnit     *fileUnit
 	fileMetadata *fileMetadata
 	callback     func(error)
@@ -90,7 +90,7 @@ func (unit *remoteMd5sumUnit) simple() error {
 }
 
 type stderrProxy struct {
-	log *jww.Notepad
+	log logging.Notepad
 }
 
 func (proxy *stderrProxy) Write(p []byte) (int, error) {

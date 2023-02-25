@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 )
 
 type Handler interface {
@@ -14,13 +14,13 @@ type Handler interface {
 }
 
 type WorkQueue[T Handler] struct {
-	log *jww.Notepad
+	log logging.Notepad
 	wg  sync.WaitGroup
 	ch  chan<- T
 }
 
 type worker[T Handler] struct {
-	log *jww.Notepad
+	log logging.Notepad
 	wg  *sync.WaitGroup
 	ch  <-chan T
 }
@@ -70,7 +70,7 @@ func (queue *WorkQueue[T]) Close() {
 	queue.log.DEBUG.Println("handler exited")
 }
 
-func NewQueue[T Handler](name string, newLog func(string) *jww.Notepad, count, buffer int) *WorkQueue[T] {
+func NewQueue[T Handler](name string, newLog func(string) logging.Notepad, count, buffer int) *WorkQueue[T] {
 	var ch chan T
 	if buffer > 0 {
 		ch = make(chan T, buffer)

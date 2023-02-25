@@ -7,7 +7,7 @@ import (
 	"runtime"
 
 	"github.com/BurntSushi/toml"
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 )
 
 var knownFiles = []string{
@@ -162,22 +162,22 @@ func (c *Config) numFileHandlers() int {
 	return max(max(c.Local.Md5sumThreads, c.Remote.Md5sumThreads), c.Local.DownloadThreads)
 }
 
-func (c *Config) downloadHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*downloadUnit] {
+func (c *Config) downloadHandlers(newLog func(string) logging.Notepad) *WorkQueue[*downloadUnit] {
 	return NewQueue[*downloadUnit]("download", newLog, c.Local.DownloadThreads, c.Local.DownloadBuffer)
 }
 
-func (c *Config) torrentHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*torrentUnit] {
+func (c *Config) torrentHandlers(newLog func(string) logging.Notepad) *WorkQueue[*torrentUnit] {
 	return NewQueue[*torrentUnit]("torrent", newLog, 1, 0)
 }
 
-func (c *Config) fileHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*fileUnit] {
+func (c *Config) fileHandlers(newLog func(string) logging.Notepad) *WorkQueue[*fileUnit] {
 	return NewQueue[*fileUnit]("file", newLog, c.numFileHandlers(), 0)
 }
 
-func (c *Config) localMd5sumHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*localMd5sumUnit] {
+func (c *Config) localMd5sumHandlers(newLog func(string) logging.Notepad) *WorkQueue[*localMd5sumUnit] {
 	return NewQueue[*localMd5sumUnit]("local-md5sum", newLog, c.Local.Md5sumThreads, 0)
 }
 
-func (c *Config) remoteMd5sumHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*remoteMd5sumUnit] {
+func (c *Config) remoteMd5sumHandlers(newLog func(string) logging.Notepad) *WorkQueue[*remoteMd5sumUnit] {
 	return NewQueue[*remoteMd5sumUnit]("remote-md5sum", newLog, c.Remote.Md5sumThreads, 0)
 }

@@ -1,4 +1,4 @@
-package main
+package logging
 
 import (
 	"io"
@@ -7,7 +7,9 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func NewNotepad(stdio, file io.Writer, prefix string) *jww.Notepad {
+type Notepad = *jww.Notepad
+
+func New(stdio, file io.Writer, prefix string) Notepad {
 	return jww.NewNotepad(
 		jww.LevelDebug,
 		jww.LevelTrace,

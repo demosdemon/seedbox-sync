@@ -6,10 +6,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/demosdemon/seedbox-sync/lib/pool"
 	"github.com/mrobinsn/go-rtorrent/rtorrent"
 	"github.com/pkg/sftp"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/vbauerster/mpb/v8"
 	"github.com/vbauerster/mpb/v8/decor"
 	"golang.org/x/crypto/ssh"
@@ -19,7 +19,7 @@ type sharedUnit struct {
 	nextPriority        atomic.Uint64
 	progress            *mpb.Progress
 	fileLogger          io.Writer
-	log                 *jww.Notepad
+	log                 logging.Notepad
 	config              *Config
 	sftpClientPool      *pool.Pool[*pooledSftpClient]
 	sshClient           *ssh.Client
@@ -32,8 +32,8 @@ type sharedUnit struct {
 	torrentHandler      *WorkQueue[*torrentUnit]
 }
 
-func (unit *sharedUnit) NewNotepad(prefix string) *jww.Notepad {
-	return NewNotepad(unit.progress, unit.fileLogger, prefix)
+func (unit *sharedUnit) NewNotepad(prefix string) logging.Notepad {
+	return logging.New(unit.progress, unit.fileLogger, prefix)
 }
 
 func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.BarOption) *mpb.Bar {

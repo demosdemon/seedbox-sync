@@ -6,15 +6,15 @@ import (
 	"os"
 	"path"
 
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var _ Handler = (*downloadUnit)(nil)
 
 type downloadUnit struct {
 	shared   *sharedUnit
-	log      *jww.Notepad
+	log      logging.Notepad
 	fileUnit *fileUnit
 	local    fileMetadata
 	remote   fileMetadata

@@ -7,15 +7,15 @@ import (
 	"os"
 	"path"
 
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/mrobinsn/go-rtorrent/rtorrent"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var _ Handler = (*fileUnit)(nil)
 
 type fileUnit struct {
 	shared      *sharedUnit
-	log         *jww.Notepad
+	log         logging.Notepad
 	name        string
 	torrentUnit *torrentUnit
 	manyFiles   bool

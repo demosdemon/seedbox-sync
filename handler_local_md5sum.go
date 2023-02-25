@@ -6,14 +6,14 @@ import (
 	"io"
 	"os"
 
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 )
 
 var _ Handler = (*localMd5sumUnit)(nil)
 
 type localMd5sumUnit struct {
 	shared       *sharedUnit
-	log          *jww.Notepad
+	log          logging.Notepad
 	fileUnit     *fileUnit
 	fileMetadata *fileMetadata
 	callback     func(error)

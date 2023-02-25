@@ -4,12 +4,12 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/demosdemon/seedbox-sync/lib/logging"
 	"github.com/mrobinsn/go-rtorrent/rtorrent"
-	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/crypto/ssh"
 )
 
-func (c *Config) RTorrentClient(log *jww.Notepad, ssh *ssh.Client) *rtorrent.RTorrent {
+func (c *Config) RTorrentClient(log logging.Notepad, ssh *ssh.Client) *rtorrent.RTorrent {
 	httpClient := &http.Client{
 		Transport: scgiProxy{
 			dial: func() (net.Conn, error) {
