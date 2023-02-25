@@ -44,17 +44,17 @@ func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.
 		mpb.BarRemoveOnComplete(),
 		mpb.BarPriority(int(unit.nextPriority.Add(1))),
 		mpb.PrependDecorators(
-			decor.Name(name, decor.WCSyncWidth),
-			decor.Percentage(decor.WCSyncSpace),
+			decor.Name(name, decor.WCSyncWidthR),
+			decor.Percentage(decor.WC{W: 6}),
 		),
 		mpb.AppendDecorators(
-			decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 2, C: decor.DSyncSpace}),
+			decor.Elapsed(decor.ET_STYLE_GO, decor.WCSyncSpace),
 			// "758.35 MB / 758.35 MB"
-			decor.CountersKiloByte("% 3.2f / % 3.2f", decor.WC{W: 22, C: decor.DSyncSpace}),
+			decor.CountersKiloByte("% .1f / % .1f", decor.WCSyncSpace),
 			// "259.93 MB/s"
-			decor.AverageSpeed(decor.UnitKB, "% 3.2f", decor.WC{W: 12, C: decor.DSyncSpaceR}),
+			decor.AverageSpeed(decor.UnitKB, "% .1f", decor.WCSyncSpace),
 			decor.OnComplete(
-				decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 2, C: decor.DSyncSpace}),
+				decor.AverageETA(decor.ET_STYLE_GO, decor.WCSyncSpace),
 				"done",
 			),
 		),
