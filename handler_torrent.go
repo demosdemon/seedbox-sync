@@ -24,24 +24,25 @@ func (unit *torrentUnit) Callback(err error) {
 }
 
 func (unit *torrentUnit) Handle() {
+	unit.callback(unit.simple())
+}
+
+func (unit *torrentUnit) simple() error {
 	if !unit.torrent.Completed {
 		unit.log.INFO.Println("skipping torrent as it has not yet completed")
-		unit.callback(nil)
-		return
+		return nil
 	}
 
 	if unit.torrent.Label == unit.shared.config.Remote.Rtorrent.SyncTag {
 		unit.log.INFO.Println("skipping torrent as it is labeled as synced")
-		unit.callback(nil)
-		return
+		return nil
 	}
 
 	unit.log.INFO.Println("listing files...")
 	files, err := unit.shared.rtorrentClient.GetFiles(unit.torrent)
 	if err != nil {
 		unit.log.ERROR.Printf("failed to list files: %s", err)
-		unit.callback(err)
-		return
+		return err
 	}
 
 	fileErrors := make(chan error)
@@ -71,39 +72,27 @@ func (unit *torrentUnit) Handle() {
 		unit.shared.fileHandler.Send(next)
 	}
 
-	// all files have been enqueued, release the torrent worker and wait for the results
 	unit.log.DEBUG.Println("waiting for all files to be processed...")
-	go func() {
-		var err error
-		defer func() {
-			if r := recover(); r != nil {
-				unit.log.CRITICAL.Printf("panic: %s", r)
-				err = fmt.Errorf("panic: %s", r)
-			}
+	fileErrorsArr, err := ExactChannel(fileErrors, len(files))
+	close(fileErrors)
+	err = errors.Join(append(fileErrorsArr, err)...)
+	if err != nil {
+		unit.log.ERROR.Printf("failed to process all files: %s", err)
+		return err
+	}
 
-			unit.callback(err)
-		}()
+	unit.log.INFO.Println("all files processed")
+	if *flagDryRun {
+		unit.log.INFO.Println("dry-run enabled, skipping update of label")
+		return err
+	}
 
-		fileErrorsArr, err := ExactChannel(fileErrors, len(files))
-		close(fileErrors)
-		err = errors.Join(append(fileErrorsArr, err)...)
+	unit.log.INFO.Println("updating label...")
+	err = unit.shared.rtorrentClient.SetLabel(unit.torrent, unit.shared.config.Remote.Rtorrent.SyncTag)
+	if err != nil {
+		unit.log.ERROR.Printf("failed to set label: %s", err)
+		return err
+	}
 
-		if err != nil {
-			unit.log.ERROR.Printf("failed to process all files: %s", err)
-			return
-		}
-
-		unit.log.INFO.Println("all files processed")
-
-		if *flagDryRun {
-			unit.log.INFO.Println("dry-run enabled, skipping update of label")
-			return
-		}
-
-		unit.log.INFO.Println("updating label...")
-		err = unit.shared.rtorrentClient.SetLabel(unit.torrent, unit.shared.config.Remote.Rtorrent.SyncTag)
-		if err != nil {
-			unit.log.ERROR.Printf("failed to set label: %s", err)
-		}
-	}()
+	return nil
 }

@@ -167,7 +167,7 @@ func (c *Config) downloadHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*
 }
 
 func (c *Config) torrentHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*torrentUnit] {
-	return NewQueue[*torrentUnit]("torrent", newLog, 1, 0)
+	return NewQueue[*torrentUnit]("torrent", newLog, c.numFileHandlers(), 0)
 }
 
 func (c *Config) fileHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*fileUnit] {
