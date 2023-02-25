@@ -167,10 +167,7 @@ func (c *Config) downloadHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*
 }
 
 func (c *Config) torrentHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*torrentUnit] {
-	// this uses the same number of handlers as the file handlers so that we can saturate
-	// all of the file handlers when we have many torrents with only one file. The zero
-	// buffer will cause the torrent handlers to block if the file handlers are busy.
-	return NewQueue[*torrentUnit]("torrent", newLog, c.numFileHandlers(), 0)
+	return NewQueue[*torrentUnit]("torrent", newLog, 1, 0)
 }
 
 func (c *Config) fileHandlers(newLog func(string) *jww.Notepad) *WorkQueue[*fileUnit] {
