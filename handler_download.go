@@ -8,8 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/vbauerster/mpb/v8"
-	"github.com/vbauerster/mpb/v8/decor"
 )
 
 var _ Handler = (*downloadUnit)(nil)
@@ -69,25 +67,9 @@ func (unit *downloadUnit) simple() error {
 	}
 	defer remoteFile.Close()
 
-	name := fmt.Sprintf("downloading %s", unit.fileUnit.file.Path)
-	wc := decor.WC{W: 2, C: decor.DSyncSpace}
-	pb := unit.shared.progress.AddBar(
+	pb := unit.shared.NewProgressBar(
 		int64(unit.remote.size),
-		mpb.BarRemoveOnComplete(),
-		mpb.BarPriority(int(unit.shared.nextPriority.Add(1))),
-		mpb.PrependDecorators(
-			decor.Name(name),
-			decor.Percentage(decor.WCSyncSpace),
-		),
-		mpb.AppendDecorators(
-			decor.OnComplete(
-				decor.Elapsed(decor.ET_STYLE_GO, wc),
-				"done",
-			),
-			decor.CountersKiloByte("% .2f / % .2f", wc),
-			decor.EwmaSpeed(decor.UnitKB, "% 3.2f", 120, wc),
-			decor.EwmaETA(decor.ET_STYLE_GO, 120, wc),
-		),
+		fmt.Sprintf("downloading %s", unit.fileUnit.file.Path),
 	)
 
 	pw := pb.ProxyWriter(localFile)

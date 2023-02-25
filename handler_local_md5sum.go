@@ -7,8 +7,6 @@ import (
 	"os"
 
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/vbauerster/mpb/v8"
-	"github.com/vbauerster/mpb/v8/decor"
 )
 
 var _ Handler = (*localMd5sumUnit)(nil)
@@ -46,22 +44,9 @@ func (unit *localMd5sumUnit) simple() error {
 		return err
 	}
 
-	name := fmt.Sprintf("local md5sum %s", unit.fileUnit.file.Path)
-	wc := decor.WC{W: 2, C: decor.DSyncSpace}
-	pb := unit.shared.progress.AddBar(
+	pb := unit.shared.NewProgressBar(
 		stat.Size(),
-		mpb.BarRemoveOnComplete(),
-		mpb.BarPriority(int(unit.shared.nextPriority.Add(1))),
-		mpb.PrependDecorators(
-			decor.Name(name),
-			decor.Percentage(decor.WCSyncSpace),
-		),
-		mpb.AppendDecorators(
-			decor.Elapsed(decor.ET_STYLE_GO, wc),
-			decor.CountersKiloByte("% .2f / % .2f", wc),
-			decor.EwmaSpeed(decor.UnitKB, "% 3.2f", 120, wc),
-			decor.EwmaETA(decor.ET_STYLE_GO, 120, wc),
-		),
+		fmt.Sprintf("local md5sum %s", unit.fileUnit.file.Path),
 	)
 
 	hash := md5.New()

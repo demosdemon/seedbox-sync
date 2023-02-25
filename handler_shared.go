@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/sftp"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/vbauerster/mpb/v8"
+	"github.com/vbauerster/mpb/v8/decor"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -33,6 +34,31 @@ type sharedUnit struct {
 
 func (unit *sharedUnit) NewNotepad(prefix string) *jww.Notepad {
 	return NewNotepad(unit.progress, unit.fileLogger, prefix)
+}
+
+func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.BarOption) *mpb.Bar {
+	if len(name) > 33 {
+		name = name[:30] + "..."
+	}
+
+	opts := []mpb.BarOption{
+		mpb.BarRemoveOnComplete(),
+		mpb.BarPriority(int(unit.nextPriority.Add(1))),
+		mpb.PrependDecorators(
+			decor.Name(name, decor.WCSyncWidth),
+			decor.Percentage(decor.WCSyncSpace),
+		),
+		mpb.AppendDecorators(
+			decor.OnComplete(
+				decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
+				"done",
+			),
+			decor.CountersKiloByte("% .2f / % .2f", decor.WC{W: 19, C: decor.DSyncSpaceR}),
+			decor.AverageSpeed(decor.UnitKB, "% 3.2f", decor.WC{W: 11, C: decor.DSyncSpaceR}),
+			decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
+		),
+	}
+	return unit.progress.AddBar(total, append(opts, options...)...)
 }
 
 func (unit *sharedUnit) Close() {
