@@ -37,10 +37,9 @@ func (unit *sharedUnit) NewNotepad(prefix string) *jww.Notepad {
 }
 
 func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.BarOption) *mpb.Bar {
-	if len(name) > 33 {
-		name = name[:30] + "..."
+	if len(name) > 53 {
+		name = name[:50] + "..."
 	}
-
 	opts := []mpb.BarOption{
 		mpb.BarRemoveOnComplete(),
 		mpb.BarPriority(int(unit.nextPriority.Add(1))),
@@ -49,13 +48,13 @@ func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.
 			decor.Percentage(decor.WCSyncSpace),
 		),
 		mpb.AppendDecorators(
-			decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 2, C: decor.DSyncWidthR}),
+			decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 2, C: decor.DSyncSpace}),
 			// "758.35 MB / 758.35 MB"
-			decor.CountersKiloByte("% .2f / % .2f", decor.WC{W: 22, C: decor.DidentRight}),
+			decor.CountersKiloByte("% 3.2f / % 3.2f", decor.WC{W: 22, C: decor.DSyncSpace}),
 			// "259.93 MB/s"
-			decor.AverageSpeed(decor.UnitKB, "% 3.2f", decor.WC{W: 12, C: decor.DidentRight}),
+			decor.AverageSpeed(decor.UnitKB, "% 3.2f", decor.WC{W: 12, C: decor.DSyncSpaceR}),
 			decor.OnComplete(
-				decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 4, C: decor.DidentRight}),
+				decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 2, C: decor.DSyncSpace}),
 				"done",
 			),
 		),
@@ -158,5 +157,4 @@ func newPooledSftpClient(config *Config, log pool.Printer) (*pooledSftpClient, e
 		sshClient:  sshClient,
 		sftpClient: sftpClient,
 	}, nil
-
 }
