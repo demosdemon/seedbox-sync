@@ -49,13 +49,13 @@ func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.
 			decor.Percentage(decor.WCSyncSpace),
 		),
 		mpb.AppendDecorators(
-			decor.OnComplete(
-				decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
-				"done",
-			),
+			decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
 			decor.CountersKiloByte("% .2f / % .2f", decor.WC{W: 19, C: decor.DSyncSpaceR}),
 			decor.AverageSpeed(decor.UnitKB, "% 3.2f", decor.WC{W: 11, C: decor.DSyncSpaceR}),
-			decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
+			decor.OnComplete(
+				decor.AverageETA(decor.ET_STYLE_GO, decor.WC{W: 3, C: decor.DSyncSpaceR}),
+				"done",
+			),
 		),
 	}
 	return unit.progress.AddBar(total, append(opts, options...)...)
