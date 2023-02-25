@@ -45,7 +45,8 @@ func (unit *torrentUnit) simple() error {
 		return err
 	}
 
-	fileErrors := make(chan error)
+	// buffer the errors so that we do not deadlock if we are blocked on pushing files to the file handler
+	fileErrors := make(chan error, len(files))
 
 	unit.log.INFO.Printf("found %d file(s)...", len(files))
 	manyFiles := len(files) > 1
