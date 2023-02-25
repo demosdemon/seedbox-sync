@@ -72,6 +72,7 @@ func (unit *torrentUnit) Handle() {
 	}
 
 	// all files have been enqueued, release the torrent worker and wait for the results
+	unit.log.DEBUG.Println("waiting for all files to be processed...")
 	go func() {
 		var err error
 		defer func() {
@@ -99,6 +100,7 @@ func (unit *torrentUnit) Handle() {
 			return
 		}
 
+		unit.log.INFO.Println("updating label...")
 		err = unit.shared.rtorrentClient.SetLabel(unit.torrent, unit.shared.config.Remote.Rtorrent.SyncTag)
 		if err != nil {
 			unit.log.ERROR.Printf("failed to set label: %s", err)
