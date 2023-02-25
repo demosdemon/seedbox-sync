@@ -137,21 +137,24 @@ func (unit *fileUnit) Handle() {
 		},
 	})
 
-	errArr, err := ExactChannel(errCh, 2)
-	err = errors.Join(append(errArr, err)...)
+	unit.log.DEBUG.Println("waiting for md5sum values")
+	go func() {
+		errArr, err := ExactChannel(errCh, 2)
+		err = errors.Join(append(errArr, err)...)
 
-	if err != nil {
-		unit.log.ERROR.Printf("error getting md5sums: %s", err)
-		unit.callback(err)
-		return
-	}
+		if err != nil {
+			unit.log.ERROR.Printf("error getting md5sums: %s", err)
+			unit.callback(err)
+			return
+		}
 
-	if bytes.Equal(lstat.md5sum, rstat.md5sum) {
-		unit.log.INFO.Println("local file md5sum matches remote")
-		unit.callback(nil)
-		return
-	}
+		if bytes.Equal(lstat.md5sum, rstat.md5sum) {
+			unit.log.INFO.Println("local file md5sum matches remote")
+			unit.callback(nil)
+			return
+		}
 
-	unit.log.INFO.Println("local file md5sum mismatch, downloading")
-	unit.doDownload(rstat, lstat)
+		unit.log.INFO.Println("local file md5sum mismatch, downloading")
+		unit.doDownload(rstat, lstat)
+	}()
 }

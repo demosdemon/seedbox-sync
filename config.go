@@ -10,6 +10,8 @@ import (
 	"github.com/demosdemon/seedbox-sync/lib/logging"
 )
 
+const kBufferMultiplier = 32
+
 var knownFiles = []string{
 	"id_rsa",
 	"id_ecdsa",
@@ -69,13 +71,13 @@ func (c *LocalConfig) setDefaults() error {
 		c.DownloadThreads = 4
 	}
 	if c.DownloadBuffer <= 0 {
-		c.DownloadBuffer = c.DownloadThreads * 64
+		c.DownloadBuffer = c.DownloadThreads * kBufferMultiplier
 	}
 	if c.Md5sumThreads <= 0 {
 		c.Md5sumThreads = runtime.NumCPU()
 	}
 	if c.Md5sumBuffer <= 0 {
-		c.Md5sumBuffer = c.Md5sumThreads * 64
+		c.Md5sumBuffer = c.Md5sumThreads * kBufferMultiplier
 	}
 	return nil
 }
@@ -85,7 +87,7 @@ func (c *RemoteConfig) setDefaults() error {
 		c.Md5sumThreads = 1
 	}
 	if c.Md5sumBuffer <= 0 {
-		c.Md5sumBuffer = c.Md5sumThreads * 64
+		c.Md5sumBuffer = c.Md5sumThreads * kBufferMultiplier
 	}
 	if err := c.Ssh.setDefaults(); err != nil {
 		return err
@@ -175,9 +177,9 @@ func (c *Config) fileHandlers(newLog func(string) logging.Notepad) *WorkQueue[*f
 }
 
 func (c *Config) localMd5sumHandlers(newLog func(string) logging.Notepad) *WorkQueue[*localMd5sumUnit] {
-	return NewQueue[*localMd5sumUnit]("local-md5sum", newLog, c.Local.Md5sumThreads, 0)
+	return NewQueue[*localMd5sumUnit]("local-md5sum", newLog, c.Local.Md5sumThreads, c.Local.Md5sumBuffer)
 }
 
 func (c *Config) remoteMd5sumHandlers(newLog func(string) logging.Notepad) *WorkQueue[*remoteMd5sumUnit] {
-	return NewQueue[*remoteMd5sumUnit]("remote-md5sum", newLog, c.Remote.Md5sumThreads, 0)
+	return NewQueue[*remoteMd5sumUnit]("remote-md5sum", newLog, c.Remote.Md5sumThreads, c.Remote.Md5sumBuffer)
 }
