@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -46,6 +47,14 @@ func main() {
 	)
 
 	flag.Parse()
+
+	log.Printf("num-bars: %d", *numBars)
+	log.Printf("total-bars: %d", *totalBars)
+	log.Printf("bar-min-bytes: %d", *barMinBytes)
+	log.Printf("bar-max-bytes: %d", *barMaxBytes)
+	log.Printf("min-bps: %d", *minBPS)
+	log.Printf("max-bps: %d", *maxBPS)
+
 	wg.Add(*numBars)
 	for i := 0; i < *numBars; i++ {
 		go func() {
@@ -136,9 +145,10 @@ type rateLimitedRandomReader struct {
 
 func NewRateLimitedRandomReader(minBytesPerSecond, maxBytesPerSecond, totalBytes int64) io.ReadCloser {
 	const tickDuration = 100 * time.Millisecond
+	const ticksPerSecond = int64(time.Second / tickDuration)
 	var (
-		minBytesPerTick = minBytesPerSecond * int64(tickDuration) / int64(time.Second)
-		maxBytesPerTick = maxBytesPerSecond * int64(tickDuration) / int64(time.Second)
+		minBytesPerTick = minBytesPerSecond / ticksPerSecond
+		maxBytesPerTick = maxBytesPerSecond / ticksPerSecond
 	)
 	ch, close := rateLimitedRandomBytes(minBytesPerTick, maxBytesPerTick, totalBytes, tickDuration)
 	return &rateLimitedRandomReader{ch: ch, close: close}
@@ -175,6 +185,14 @@ func rateLimitedRandomBytes(
 		out    = make(chan []byte)
 		rng    = rand.New(rand.NewSource(time.Now().UnixNano()))
 	)
+
+	log.Printf("minBytesPerTick: %d", minBytesPerTick)
+	log.Printf("maxBytesPerTick: %d", maxBytesPerTick)
+	runtime.Gosched()
+
+	if maxBytesPerTick-minBytesPerTick <= 0 {
+		log.Panicf("maxBytesPerTick must be greater than minBytesPerTick (got %d and %d)", maxBytesPerTick, minBytesPerTick)
+	}
 
 	go func() {
 		defer ticker.Stop()
