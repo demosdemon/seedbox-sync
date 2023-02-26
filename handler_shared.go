@@ -48,7 +48,7 @@ func (unit *sharedUnit) NewProgressBar(total int64, name string, options ...mpb.
 			decor.Percentage(decor.WC{W: 6}),
 		),
 		mpb.AppendDecorators(
-			decor.Elapsed(decor.ET_STYLE_GO, decor.WCSyncSpace),
+			decor.Elapsed(decor.ET_STYLE_GO, decor.WCSyncWidth),
 			// "758.35 MB / 758.35 MB"
 			decor.CountersKiloByte("% .1f / % .1f", decor.WCSyncSpace),
 			// "259.93 MB/s"
