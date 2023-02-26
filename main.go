@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/mrobinsn/go-rtorrent/rtorrent"
 )
@@ -28,6 +29,8 @@ func main() {
 		return a.Before(b)
 	})
 
+	var wg sync.WaitGroup
+	wg.Add(len(torrents))
 	for idx, torrent := range torrents {
 		name := fmt.Sprintf("Torrent %s", torrent.Name)
 		shared.torrentHandler.Send(&torrentUnit{
@@ -40,9 +43,11 @@ func main() {
 				if err != nil {
 					shared.log.ERROR.Printf("Error processing torrent %s: %s", name, err)
 				}
+				wg.Done()
 			},
 		})
 	}
+	wg.Wait()
 }
 
 func max(a, b int) int {
